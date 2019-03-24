@@ -5,9 +5,7 @@
     <meta content="width=device-width, initial-scale=1" name="viewport" />
     <title>Flock</title>
     <script
-            src="//code.jquery.com/jquery-3.3.1.min.js"
-            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-            crossorigin="anonymous"></script>
+            src="./jquery-3.3.1.js"></script>
 </head>
 <body>
 <section>
@@ -27,8 +25,8 @@
     $(document).ready(() => {
         var request = new XMLHttpRequest()
         
-        //GET /api/v1/by_location/FAMILY
-        request.open('GET', '/api/v1/by_location/FAMILY', true)
+        //GET /api/v1/by_location/FAMILY   http://557ac8e4.ngrok.io/api/v1/locations/testdb
+        request.open('GET', 'http://557ac8e4.ngrok.io/api/v1/by_location/testdb', true)
         request.onload = function() {
             
             var data = JSON.parse(this.response)
