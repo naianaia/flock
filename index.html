@@ -15,12 +15,65 @@
 
 <script>
 
-
     /**var element = document.createElement("link");
     element.setAttribute("rel", "stylesheet");
     element.setAttribute("type", "text/css");
     element.setAttribute("href", "./styles.css");
     document.getElementsByTagName("head")[0].appendChild(element);**/
+
+    var testData = {
+        "locations": [
+            {
+                "devices": [
+                    {
+                        "device": "Jason B",
+                        "timestamp": "2015-08-15T00:04:25.993Z",
+                        "probability": 0.98,
+                        "randomized": false,
+                        "num_scanners": 22,
+                        "active_mins": 171,
+                        "first_seen": "2015-08-14T23:55:37.334Z"
+                    },
+                    {
+                        "device": "Christina K",
+                        "timestamp": "2015-08-15T00:04:25.993Z",
+                        "probability": 0.98,
+                        "randomized": false,
+                        "num_scanners": 22,
+                        "active_mins": 171,
+                        "first_seen": "2015-08-14T23:55:37.334Z"
+                    }
+                ],
+                "location": "main",
+                "gps": {
+                    "lat": -1,
+                    "lon": -1
+                },
+                "total": 2
+            },
+            {
+                "devices": [
+                    {
+                        "device": "Zain S",
+                        "timestamp": "2015-08-15T00:04:25.993Z",
+                        "probability": 0.98,
+                        "randomized": false,
+                        "num_scanners": 22,
+                        "active_mins": 171,
+                        "first_seen": "2015-08-14T23:55:37.334Z"
+                    }
+                ],
+                "location": "backyard",
+                "gps": {
+                    "lat": -1,
+                    "lon": -1
+                },
+                "total": 2
+            }
+        ],
+        "message": "got locations",
+        "success": true
+    }
 
     $(document).ready(() => {
         var request = new XMLHttpRequest()
@@ -28,26 +81,34 @@
         //GET /api/v1/by_location/FAMILY   http://557ac8e4.ngrok.io/api/v1/locations/testdb
         request.open('GET', '/find3/api/v1/by_location/testdb', true)
         request.onload = function() {
-
             var data = JSON.parse(this.response)
-
             if (request.status >= 200 && request.status < 400) {
                 data.locations.forEach(locationObject => {
-                    console.log(locationObject)
-
-                    $('#container').append(`<p><b>${locationObject.location}<b></p>`);
-                    
-                    locationObject.devices.forEach(deviceObject => {
-                        $('#container').append( `<p>${deviceObject.device}</p>` );
-                    })
-                    
+                    generateLocation(locationObject)
                 })
             } else {
-                console.log('error')
+                console.log('errorrrrzzz')
             }
         }
+
+        request.onerror = function() {
+            var data = testData;
+            data.locations.forEach(locationObject => {
+                generateLocation(locationObject)
+            })
+        };
+
         request.send()
     })
+
+    function generateLocation(locationObject) {
+        console.log(locationObject)
+        $('#container').append(`<div id='loc${locationObject.location}'><p><b>${locationObject.location}<b></p></div>`);
+        locationObject.devices.forEach(deviceObject => {
+            $(`#loc${locationObject.location}`).append( `<p>${deviceObject.device}</p>` );
+        })
+    }
+
 </script>
 
 </body>
