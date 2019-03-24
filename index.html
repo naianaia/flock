@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <title>Flock</title>
+    <script
+            src="//code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+            crossorigin="anonymous"></script>
+</head>
+<body>
+<section>
+    <div class="container">
+    </div>
+</section>
+
+<script>
+
+
+    /**var element = document.createElement("link");
+    element.setAttribute("rel", "stylesheet");
+    element.setAttribute("type", "text/css");
+    element.setAttribute("href", "./styles.css");
+    document.getElementsByTagName("head")[0].appendChild(element);**/
+
+    $(document).ready(() => {
+        var request = new XMLHttpRequest()
+        
+        //GET /api/v1/by_location/FAMILY
+        request.open('GET', '/api/v1/by_location/FAMILY', true)
+        request.onload = function() {
+            
+            var data = JSON.parse(this.response)
+
+            if (request.status >= 200 && request.status < 400) {
+                data.locations.forEach(locationObject => {
+                    console.log(locationObject)
+
+                    $('#container').append(`<p><b>${locationObject.location}<b></p>`);
+                    
+                    locationObject.devices.forEach(deviceObject => {
+                        $('#container').append( `<p>${deviceObject.device}</p>` );
+                    })
+                    
+                })
+            } else {
+                console.log('error')
+            }
+        }
+        request.send()
+    })
+</script>
+
+</body>
+</html>
