@@ -26,7 +26,7 @@
         var request = new XMLHttpRequest()
         
         //GET /api/v1/by_location/FAMILY   http://557ac8e4.ngrok.io/api/v1/locations/testdb
-        request.open('GET', 'http://192.168.86.131/flock/find3/api/v1/by_location/testdb', true)
+        request.open('GET', '/find3/api/v1/by_location/testdb', true)
         request.onload = function() {
 
             var data = JSON.parse(this.response)
