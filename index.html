@@ -7,19 +7,16 @@
     <script src="./jquery-3.3.1.js"></script>
 </head>
 <body>
-<section>
-    <h1>flock</h1>
-    <div id="container">
-    </div>
-</section>
-
+<h1>flock</h1>
+<div id="container">
+</div>
 <script>
 
-    /**var element = document.createElement("link");
+    var element = document.createElement("link");
     element.setAttribute("rel", "stylesheet");
     element.setAttribute("type", "text/css");
-    element.setAttribute("href", "./styles.css");
-    document.getElementsByTagName("head")[0].appendChild(element);**/
+    element.setAttribute("href", "./assets/styles.css");
+    document.getElementsByTagName("head")[0].appendChild(element);
 
     var testData = {
         "locations": [
@@ -77,33 +74,39 @@
 
     $(document).ready(() => {
         var request = new XMLHttpRequest()
-        
-        //GET /api/v1/by_location/FAMILY   http://557ac8e4.ngrok.io/api/v1/locations/testdb
-        request.open('GET', '/find3/api/v1/by_location/testdb', true)
+
+        //API request
+        request.open('GET', 'http://flock.archive.house/find3/api/v1/by_location/archive', true) //GET /api/v1/by_location/FAMILY   http://557ac8e4.ngrok.io/api/v1/locations/testdb
         request.onload = function() {
             var data = JSON.parse(this.response)
             if (request.status >= 200 && request.status < 400) {
                 data.locations.forEach(locationObject => {
-                    generateLocation(locationObject)
+                    populateLocation(locationObject)
                 })
             } else {
                 console.log('errorrrrzzz')
             }
         }
 
+        //API unavail
         request.onerror = function() {
             var data = testData;
             data.locations.forEach(locationObject => {
-                generateLocation(locationObject)
+                populateLocation(locationObject)
             })
         };
 
         request.send()
     })
 
-    function generateLocation(locationObject) {
+    function populateLocation(locationObject) {
         console.log(locationObject)
-        $('#container').append(`<div id='loc${locationObject.location}'><p><b>${locationObject.location}<b></p></div>`);
+        $('#container').append(`
+            <div id='loc${locationObject.location}' class='locationPanel'>
+                <div class='${locationObject.location}Icon'></div>
+                <p class='locationName'>${locationObject.location}</p>
+            </div>
+        `);
         locationObject.devices.forEach(deviceObject => {
             $(`#loc${locationObject.location}`).append( `<p>${deviceObject.device}</p>` );
         })
