@@ -16,6 +16,7 @@
 */
 
 #include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
 #include <ArduinoJson.h>
 // #include <credentials.h>
 #include <set>
@@ -29,7 +30,8 @@
 #define MAXDEVICES 60
 #define JBUFFER 15+ (MAXDEVICES * 40)
 #define PURGETIME 600000
-#define MINRSSI -70
+#define MINRSSI -80
+#define GROUP_NAME "archive"
 
 // uint8_t channel = 1;
 unsigned int channel = 1;
@@ -37,10 +39,14 @@ int clients_known_count_old, aps_known_count_old;
 unsigned long sendEntry, deleteEntry;
 char jsonString[JBUFFER];
 
+//WiFiClient newClient;
+const char* host = "192.168.86.131";
 
 String device[MAXDEVICES];
 int nbrDevices = 0;
 int usedChannels[15];
+
+String chipIdStr = String(ESP.getChipId());
 
 #ifndef CREDENTIALS
 #define mySSID "Sourceress"
@@ -48,6 +54,7 @@ int usedChannels[15];
 #endif
 
 StaticJsonBuffer<JBUFFER>  jsonBuffer;
+HTTPClient http;
 
 void setup() {
   Serial.begin(115200);
@@ -172,25 +179,147 @@ void showDevices() {
   }
 }
 
-void sendDevices() {
-  String deviceMac;
-
-  // Setup MQTT
-  wifi_promiscuous_enable(disable);
-  connectToWiFi();
-  client.setServer(mqttServer, 1883);
-  while (!client.connected()) {
-    Serial.println("Connecting to MQTT...");
-
-    if (client.connect("ESP32Client", "admin", "admin" )) {
-      Serial.println("connected");
-    } else {
-      Serial.print("failed with state ");
-      Serial.println(client.state());
-    }
-    yield();
+unsigned long long getUnixTime() {
+#ifdef ESP32
+  time_t now;
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo)) {
+    Serial.println("[ ERROR ]\tFailed to obtain time via NTP. Retrying.");
+    getUnixTime();
   }
+  else
+  {
+    Serial.println("[ INFO ]\tSuccessfully obtained time via NTP.");
+  }
+  time(&now);
+  unsigned long long uTime = (uintmax_t)now;
+  return uTime * 1000UL;
+#else
+  return 123456;
+#endif
+}
 
+void sendDevices() {
+    String deviceMac;
+
+    // Setup MQTT
+    wifi_promiscuous_enable(disable);
+    connectToWiFi();
+
+    const int port = 8004;
+    String request = "test";
+
+
+    if (!client.connect("192.168.86.131", port)) {
+        Serial.println("connection failed");
+    }
+
+        // We now create a URI for the request
+    String url = "/echo";
+
+
+  // This will send the request to the server
+    //client.print(fullRequest);
+               
+
+    jsonBuffer.clear();
+    JsonObject& root = jsonBuffer.createObject();
+
+    root["d"] = chipIdStr;
+    root["f"] = GROUP_NAME;
+    root["t"] = getUnixTime();
+    JsonObject& data = root.createNestedObject("s");
+    JsonObject& wifi_network = data.createNestedObject("wifi");
+
+    for (int u = 0; u < aps_known_count; u++) {
+        deviceMac = formatMac1(aps_known[u].bssid);
+        if (aps_known[u].rssi > MINRSSI) {
+            wifi_network[deviceMac] = aps_known[u].rssi;
+        }
+    }
+    for (int u = 0; u < clients_known_count; u++) {
+        deviceMac = formatMac1(clients_known[u].station);
+        if (clients_known[u].rssi > MINRSSI) {
+            wifi_network[deviceMac] = clients_known[u].rssi;
+        }
+    }
+
+
+//{"MAC":["d8:6c:63:cc:72:ae","c8:d3:ff:c6:2c:ce","88:3d:24:6e:8b:2d","e4:f0:42:ef:84:52","96:9f:3e:c2:09:d9","d8:6c:63:cc:71:8a","9c:b6:d0:01:92:ef","e4:f0:42:ef:84:4c","bc:dd:c2:25:a2:06","9c:b6:d0:f0:b2:4f","bc:dd:c2:25:f2:7e","88:3d:24:6e:8b:27","24:a2:e1:43:c7:e1","54:33:cb:9f:72:e1","54:60:09:c2:16:7e","f4:f5:d8:a4:90:08","38:8b:59:4a:7d:eb","a4:77:33:f5:9f:70","00:17:88:4c:85:06","90:b6:86:01:73:b5","9c:f3:87:b6:c3:96","5c:aa:fd:5e:c2:7e","00:55:da:52:bd:e8","94:9f:3e:c2:09:d9","20:91:48:bf:49:81","c8:d3:ff:c6:2c:cd","68:54:fd:34:5e:ee","f0:18:98:07:95:5a"]}
+/**
+    JsonArray& mac = root.createNestedArray("MAC");
+    // add Beacons
+    for (int u = 0; u < aps_known_count; u++) {
+        deviceMac = formatMac1(aps_known[u].bssid);
+        if (aps_known[u].rssi > MINRSSI) {
+        mac.add(deviceMac);
+        //    rssi.add(aps_known[u].rssi);
+        }
+    }
+
+    // Add Clients
+    for (int u = 0; u < clients_known_count; u++) {
+        deviceMac = formatMac1(clients_known[u].station);
+        if (clients_known[u].rssi > MINRSSI) {
+        mac.add(deviceMac);
+        //    rssi.add(clients_known[u].rssi);
+        }
+    }**/
+    Serial.println("find3 string begin");
+    Serial.println(jsonString);
+    Serial.println("find3 string end");
+    //Serial.printf("number of devices: %02d\n", mac.size());
+    root.prettyPrintTo(Serial);
+    root.printTo(jsonString);
+
+
+    
+
+    http.begin("http://192.168.86.131:"+port);
+    http.addHeader("Content-Type", "application/json");
+    http.POST(jsonString);
+    http.writeToStream(&Serial);
+    http.end();
+
+/**
+    String fullRequest = String("POST ") + url + " HTTP/1.1\r\n" +
+            "Host: http://" + host + ":" + port + "\r\n" +
+            "Content-Type: text/plain\r\n\r\n\r\n" +
+            jsonString +
+            "\r\n\r\n";**/
+
+//"Content-Length: " + sizeof(jsonString) + "\r\n\r\n" +
+    Serial.println(jsonString);
+    //Serial.println(fullRequest);
+    //client.print(fullRequest);
+
+    char status[60] = {0};
+    client.readBytesUntil('\r', status, sizeof(status));
+    if (strcmp(status, "HTTP/1.0 200 OK") != 0) {
+        Serial.print(F("[ ERROR ]\tUnexpected Response: "));
+        Serial.println(status);
+        return;
+    }
+    else
+    {
+        Serial.println(F("[ INFO ]\tGot a 200 OK."));
+    }
+    /**
+    client.setServer(host, port);
+
+    while (!client.connected()) {
+        Serial.println("Connecting to server...");
+
+        if (client.connect("ESP32Client", "admin", "admin" )) {
+            Serial.println("connected");
+        } else {
+            Serial.print("failed with state ");
+            Serial.println(client.state());
+        }
+        yield();
+    }
+
+    
   // Purge json string
   jsonBuffer.clear();
   JsonObject& root = jsonBuffer.createObject();
@@ -228,7 +357,8 @@ void sendDevices() {
     Serial.println();
   }
   client.loop();
-  client.disconnect ();
+  client.disconnect ();**/
+
   delay(100);
   wifi_promiscuous_enable(enable);
   sendEntry = millis();

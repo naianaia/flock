@@ -1,8 +1,8 @@
 #include <PubSubClient.h>
 
 
-WiFiClient espClient;
-PubSubClient client(espClient);
+WiFiClient client;
+//PubSubClient client(espClient);
 
 
 // MQTT
