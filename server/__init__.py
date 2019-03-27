@@ -30,12 +30,12 @@ def create_app(test_config=None):
     def hello():
         return 'Hello, World!'
 
-    @app.route('/passive', methods=['GET', 'POST'])
+    @app.route('/echo', methods=['GET', 'POST'])
     def log():
         print(request.get_json())
         return "test"
 
-    @app.route('/echo')
+    @app.route('/echo-ip')
     def echo():
         ip = None
         print(request.headers)
