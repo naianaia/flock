@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1" name="viewport" />
     <title>Flock</title>
-    <script src="/assets/jquery-3.3.1.js"></script>
+    <script src="../assets/jquery-3.3.1.js"></script>
 </head>
 <body>
 <div id="container">
@@ -14,7 +14,7 @@
     var element = document.createElement("link");
     element.setAttribute("rel", "stylesheet");
     element.setAttribute("type", "text/css");
-    element.setAttribute("href", "/assets/styles.css");
+    element.setAttribute("href", "../assets/styles.css");
     document.getElementsByTagName("head")[0].appendChild(element);
 
     var knownDevices = {};
@@ -115,13 +115,6 @@
         
         currentMap[`${locationObject.location}`] = [];
 
-        /**console.log(locationObject)
-        $('#container').append(`
-            <div id='loc${locationObject.location}' class='locationPanel'>
-                <div class='${locationObject.location}Icon'></div>
-                <p class='locationName'>${locationObject.location}</p>
-            </div>
-        `);**/
         locationObject.devices.forEach(deviceObject => {
             if(knownDevices[deviceObject.device]) {
                 currentMap[`${locationObject.location}`].push(knownDevices[deviceObject.device]);
@@ -133,7 +126,6 @@
     function renderLocation() {
         console.log(currentMap);
         for (const [location, devices] of Object.entries(currentMap)) {
-        //currentMap.forEach((location, devices) => {
             if (devices.length > 0) {
                 $('#container').append(`
                     <div id='loc${location}' class='locationPanel'>
@@ -146,21 +138,6 @@
                 })
             }
         }
-        /**
-        currentMap.forEach(location => {
-            if (location.length > 0) {
-                $('#container').append(`
-                    <div id='loc${locationObject.location}' class='locationPanel'>
-                        <div class='${locationObject.location}Icon'></div>
-                        <p class='locationName'>${locationObject.location}</p>
-                    </div>
-                `);
-                
-            location.forEach(device => {
-                $(`#loc${location}`).append( `<p>${device}</p>` );
-            })
-            }
-        })**/
     }
 
 </script>
