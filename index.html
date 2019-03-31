@@ -25,6 +25,7 @@
     knownDevices["wifi-38:f9:d3:9b:b0:a4"] = "Jason-laptop(bluetooth)";
     knownDevices["wifi-3c:28:6d:2c:37:9f"] = "Ben-phone";
     
+    var currentMap = {};
 
     var testData = {
         "locations": [
@@ -87,6 +88,7 @@
         request.open('GET', 'http://192.168.86.131:8005/api/v1/by_location/archive', true)
         request.onload = function() {
             var data = JSON.parse(this.response)
+            currentMap = {};
             if (request.status >= 200 && request.status < 400) {
                 data.locations.forEach(locationObject => {
                     populateLocation(locationObject)
@@ -94,6 +96,8 @@
             } else {
                 console.log('errorrrrzzz')
             }
+            console.log(currentMap);
+            renderLocation();
         }
 
         //API unavail
@@ -108,17 +112,55 @@
     })
 
     function populateLocation(locationObject) {
-        console.log(locationObject)
+        
+        currentMap[`${locationObject.location}`] = [];
+
+        /**console.log(locationObject)
         $('#container').append(`
             <div id='loc${locationObject.location}' class='locationPanel'>
                 <div class='${locationObject.location}Icon'></div>
                 <p class='locationName'>${locationObject.location}</p>
             </div>
-        `);
+        `);**/
         locationObject.devices.forEach(deviceObject => {
-            if(knownDevices[deviceObject.device])
-            $(`#loc${locationObject.location}`).append( `<p>${knownDevices[deviceObject.device]}</p>` );
+            if(knownDevices[deviceObject.device]) {
+                currentMap[`${locationObject.location}`].push(knownDevices[deviceObject.device]);
+                //$(`#loc${locationObject.location}`).append( `<p>${knownDevices[deviceObject.device]}</p>` );
+            }
         })
+    }
+
+    function renderLocation() {
+        console.log(currentMap);
+        for (const [location, devices] of Object.entries(currentMap)) {
+        //currentMap.forEach((location, devices) => {
+            if (devices.length > 0) {
+                $('#container').append(`
+                    <div id='loc${location}' class='locationPanel'>
+                        <div class='${location}Icon'></div>
+                        <p class='locationName'>${location}</p>
+                    </div>
+                `);
+                devices.forEach(device => {
+                    $(`#loc${location}`).append( `<p>${device}</p>` );
+                })
+            }
+        }
+        /**
+        currentMap.forEach(location => {
+            if (location.length > 0) {
+                $('#container').append(`
+                    <div id='loc${locationObject.location}' class='locationPanel'>
+                        <div class='${locationObject.location}Icon'></div>
+                        <p class='locationName'>${locationObject.location}</p>
+                    </div>
+                `);
+                
+            location.forEach(device => {
+                $(`#loc${location}`).append( `<p>${device}</p>` );
+            })
+            }
+        })**/
     }
 
 </script>

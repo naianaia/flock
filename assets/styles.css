@@ -40,8 +40,9 @@ p {
 
 .locationName {
     font-size: 28px;
-    font-weight: 700;
-    line-height: 42px;
-    text-decoration: underline;
+    font-weight: 800;
+    font-size: 18px;
+    line-height: 26px;
     margin-bottom: 16px;
+    text-transform: uppercase;
 }
