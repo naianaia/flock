@@ -1,8 +1,8 @@
 import os
 import sys
 
-from flask import Flask
-from flask import request
+from flask import request, send_file
+from flask import Flask, Response
 
 
 def create_app(test_config=None):
@@ -28,8 +28,9 @@ def create_app(test_config=None):
 
     # a simple page that says hello
     @app.route('/', methods=['GET', 'POST'])
-    def hello():
-        return 'Hello, World!'
+    def root():
+        return send_file('index.html')
+
 
     @app.route('/echo', methods=['GET', 'POST'])
     def log():
