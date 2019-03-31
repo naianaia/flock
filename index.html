@@ -7,7 +7,6 @@
     <script src="./jquery-3.3.1.js"></script>
 </head>
 <body>
-<h1>flock</h1>
 <div id="container">
 </div>
 <script>
@@ -17,6 +16,15 @@
     element.setAttribute("type", "text/css");
     element.setAttribute("href", "./assets/styles.css");
     document.getElementsByTagName("head")[0].appendChild(element);
+
+    var knownDevices = {};
+    knownDevices["wifi-94:65:2d:c6:c7:f7"] = "Austin-phone";
+    knownDevices["wifi-8c:85:90:3c:22:47"] = "Austin-laptop";
+    knownDevices["wifi-40:4e:36:d1:0e:99"] = "Jason-phone";
+    knownDevices["wifi-38:f9:d3:95:e8:1b"] = "Jason-laptop(en0)";
+    knownDevices["wifi-38:f9:d3:9b:b0:a4"] = "Jason-laptop(bluetooth)";
+    knownDevices["wifi-3c:28:6d:2c:37:9f"] = "Ben-phone";
+    
 
     var testData = {
         "locations": [
@@ -76,7 +84,7 @@
         var request = new XMLHttpRequest()
         
         //GET /api/v1/by_location/FAMILY   http://557ac8e4.ngrok.io/api/v1/locations/testdb
-        request.open('GET', '/find3/api/v1/by_location/testdb', true)
+        request.open('GET', 'http://192.168.86.131:8005/api/v1/by_location/archive', true)
         request.onload = function() {
             var data = JSON.parse(this.response)
             if (request.status >= 200 && request.status < 400) {
@@ -108,7 +116,8 @@
             </div>
         `);
         locationObject.devices.forEach(deviceObject => {
-            $(`#loc${locationObject.location}`).append( `<p>${deviceObject.device}</p>` );
+            if(knownDevices[deviceObject.device])
+            $(`#loc${locationObject.location}`).append( `<p>${knownDevices[deviceObject.device]}</p>` );
         })
     }
 
