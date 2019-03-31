@@ -169,7 +169,7 @@ void sendDevices() {
     String url = "/passive";
 
                
-
+    jsonString = "";
     jsonBuffer.clear();
     JsonObject& root = jsonBuffer.createObject();
 
@@ -192,20 +192,9 @@ void sendDevices() {
         }
     }
 
-    //Serial.println("find3 string begin");
-    //Serial.println(jsonString);
-    //Serial.println("find3 string end");
-    //Serial.printf("number of devices: %02d\n", mac.size());
-    //root.prettyPrintTo(Serial);
     root.prettyPrintTo(jsonString);
 
 
-/**
-    http.begin("http://192.168.86.131:"+port);
-    http.addHeader("Content-Type", "application/json");
-    http.POST(jsonString);
-    http.writeToStream(&Serial);
-    http.end();**/
 
     
     const char* host = "192.168.86.131";
@@ -218,7 +207,6 @@ void sendDevices() {
                  "\r\n\r\n"
                 );
 
-    //String fullRequest = String("POST ") + url + " HTTP/1.1\r\n" + "Host: 192.168.86.131:8005\r\n" + "Content-Type: application/json\r\n\r\n" + jsonString + "\r\n";
 
     String fullRequest = String("POST ") + url + " HTTP/1.1\r\n" +
                  "Host: " + host + "\r\n" +
@@ -235,42 +223,13 @@ void sendDevices() {
     if (strcmp(status, "HTTP/1.1 200 OK") != 0) {
         Serial.print(F("[ ERROR ]\tUnexpected Response: "));
         Serial.println(status);
-        return;
     }
     else
     {
         Serial.println(F("[ INFO ]\tGot a 200 OK."));
     }
-    /**
-    client.setServer(host, port);
 
-    while (!client.connected()) {
-        Serial.println("Connecting to server...");
-
-        if (client.connect("ESP32Client", "admin", "admin" )) {
-            Serial.println("connected");
-        } else {
-            Serial.print("failed with state ");
-            Serial.println(client.state());
-        }
-        yield();
-    }
-
-
-  Serial.println();
-  Serial.printf("number of devices: %02d\n", mac.size());
-  root.prettyPrintTo(Serial);
-  root.printTo(jsonString);
-  //  Serial.println((jsonString));
-  //  Serial.println(root.measureLength());
-  if (client.publish("Sniffer", jsonString) == 1) Serial.println("Successfully published");
-  else {
-    Serial.println();
-    Serial.println("!!!!! Not published. Please add #define MQTT_MAX_PACKET_SIZE 2048 at the beginning of PubSubClient.h file");
-    Serial.println();
-  }
-  client.loop();
-  client.disconnect ();**/
+  
 
   delay(100);
   wifi_promiscuous_enable(enable);
