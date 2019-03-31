@@ -1,4 +1,5 @@
 import os
+import sys
 
 from flask import Flask
 from flask import request
@@ -32,7 +33,12 @@ def create_app(test_config=None):
 
     @app.route('/echo', methods=['GET', 'POST'])
     def log():
-        print(request.get_json())
+        print('\n')
+        print('\n====')
+        print(request.headers, file=sys.stderr)
+        print(request.data, file=sys.stderr)
+        print('=====\n')
+        print('\n')
         return "test"
 
     @app.route('/echo-ip')
