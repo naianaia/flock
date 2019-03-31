@@ -37,7 +37,8 @@
 unsigned int channel = 1;
 int clients_known_count_old, aps_known_count_old;
 unsigned long sendEntry, deleteEntry;
-char jsonString[JBUFFER];
+//char jsonString[JBUFFER];
+String jsonString;
 
 //WiFiClient newClient;
 const char* host = "192.168.86.131";
@@ -174,7 +175,7 @@ void sendDevices() {
 
     root["d"] = chipIdStr;
     root["f"] = GROUP_NAME;
-    root["t"] = getUnixTime();
+    //root["t"] = getUnixTime();
     JsonObject& data = root.createNestedObject("s");
     JsonObject& wifi_network = data.createNestedObject("wifi");
 
@@ -191,12 +192,12 @@ void sendDevices() {
         }
     }
 
-    Serial.println("find3 string begin");
-    Serial.println(jsonString);
-    Serial.println("find3 string end");
+    //Serial.println("find3 string begin");
+    //Serial.println(jsonString);
+    //Serial.println("find3 string end");
     //Serial.printf("number of devices: %02d\n", mac.size());
-    root.prettyPrintTo(Serial);
-    root.printTo(jsonString);
+    //root.prettyPrintTo(Serial);
+    root.prettyPrintTo(jsonString);
 
 
 /**
@@ -206,16 +207,32 @@ void sendDevices() {
     http.writeToStream(&Serial);
     http.end();**/
 
+    
+    const char* host = "192.168.86.131";
 
-    String fullRequest = String("POST ") + url + " HTTP/1.1\r\n" + "Host: 192.168.86.131:8005\r\n" + "Content-Type: text/plain\r\n\r\n" + jsonString + "\r\n\r\n";
+    client.print(String("POST ") + url + " HTTP/1.1\r\n" +
+                 "Host: " + host + "\r\n" +
+                 "Content-Type: application/json\r\n" +
+                 "Content-Length: " + jsonString.length() + "\r\n\r\n" +
+                 jsonString +
+                 "\r\n\r\n"
+                );
 
+    //String fullRequest = String("POST ") + url + " HTTP/1.1\r\n" + "Host: 192.168.86.131:8005\r\n" + "Content-Type: application/json\r\n\r\n" + jsonString + "\r\n";
+
+    String fullRequest = String("POST ") + url + " HTTP/1.1\r\n" +
+                 "Host: " + host + "\r\n" +
+                 "Content-Type: application/json\r\n" +
+                 "Content-Length: " + jsonString.length() + "\r\n\r\n" +
+                 jsonString +
+                 "\r\n\r\n";
 //"Content-Length: " + sizeof(jsonString) + "\r\n\r\n" +
     Serial.println(fullRequest);
-    client.print(fullRequest);
+    //client.print(fullRequest);
 
     char status[60] = {0};
     client.readBytesUntil('\r', status, sizeof(status));
-    if (strcmp(status, "HTTP/1.0 200 OK") != 0) {
+    if (strcmp(status, "HTTP/1.1 200 OK") != 0) {
         Serial.print(F("[ ERROR ]\tUnexpected Response: "));
         Serial.println(status);
         return;
