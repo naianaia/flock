@@ -21,12 +21,12 @@
     knownDevices["wifi-94:65:2d:c6:c7:f7"] = "Austin-phone";
     knownDevices["wifi-8c:85:90:3c:22:47"] = "Austin-laptop";
     knownDevices["wifi-40:4e:36:d1:0e:99"] = "Jason-phone";
-    knownDevices["wifi-38:f9:d3:95:e8:1b"] = "Jason-laptop(en0)";
-    knownDevices["wifi-38:f9:d3:9b:b0:a4"] = "Jason-laptop(bluetooth)";
+    knownDevices["wifi-38:f9:d3:95:e8:1b"] = "Jason-laptop-work-en0";
+    knownDevices["wifi-38:f9:d3:9b:b0:a4"] = "Jason-laptop-work-bluetooth";
     knownDevices["wifi-3c:28:6d:2c:37:9f"] = "Ben-phone";
-    knownDevices["wifi-20:c9:d0:48:f6:a9"] = "Jason-old-MBP";
-    knownDevices["wifi-40:A1:08:38:98:38"] = "Jason-Android-Tab";
-    knownDevices["wifi-08:E6:89:AD:EE:42"] = "Jason-iPad";
+    knownDevices["wifi-20:c9:d0:48:f6:a9"] = "Jason-laptop-old-MBP";
+    knownDevices["wifi-40:A1:08:38:98:38"] = "Jason-tablet-Android";
+    knownDevices["wifi-08:E6:89:AD:EE:42"] = "Jason-tablet-iPad";
     
     var currentMap = {};
 
@@ -91,6 +91,7 @@
         request.open('GET', 'http://192.168.86.131:8005/api/v1/by_location/archive', true)
         request.onload = function() {
             var data = JSON.parse(this.response)
+            window.response = this.response;
             currentMap = {};
             if (request.status >= 200 && request.status < 400) {
                 data.locations.forEach(locationObject => {
@@ -102,6 +103,7 @@
             console.log(currentMap);
             renderLocation();
         }
+        // request.send()
 
         //API unavail
         request.onerror = function() {
@@ -116,6 +118,12 @@
 
     function populateLocation(locationObject) {
         
+        ["main", "backyard", "study", "roof", "workshop"].forEach(room => {
+            if (room in currentMap) {
+                console.log(room)
+            }
+        })
+
         if (!locationObject.location.includes("hall") && !locationObject.location.includes("room")) {
             currentMap[`${locationObject.location}`] = [];
 
@@ -149,6 +157,18 @@
             }
         }
     }
+
+</script>
+
+<script>
+
+    request.open('GET', 'http://192.168.86.131:8005/api/v1/by_location/archive', true)
+    request.onload = function() {
+        window.data = JSON.parse(this.response)
+        renderLocation();
+    }
+    request.send()
+    array.reduce((h, obj) => Object.assign(h, { [obj.key]:( h[obj.key] || [] ).concat(obj) }), {})
 
 </script>
 
