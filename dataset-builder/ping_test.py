@@ -5,14 +5,23 @@ from scapy.layers.dot11 import RadioTap
 from scapy.layers.inet import ICMP
 from scapy.layers.inet import IP
 
-packet = IP(dst="192.168.86.131", ttl=20) / ICMP()
-reply = sr1(packet)
-print(reply)
+dest_ip = "192.168.86.246"
+dest_ip = "8.8.8.8"
+ml_mac = "9c:b6:d0:01:92:ef"
+fake_mac = "aa:bb:cc:"
 
-RadioTap() / Dot11(
+ping = IP(dst=dest_ip, ttl=20) / ICMP()
+sr1(ping)
+
+probereq = RadioTap() / Dot11(
     type=0,
     subtype=4,
     addr1="ff:ff:ff:ff:ff:ff",
-    addr2="00:11:22:33:44:55",
+    addr2=ml_mac,
+    # addr2="00:11:22:33:44:55",
     addr3="ff:ff:ff:ff:ff:ff",
 ) / Dot11Elt(ID="SSID", info="")
+sendp(probereq)
+srp1(probereq)
+
+packets = rdpcap("/Users/jasonbenn/code/flock/probe-reqs.pcap")
