@@ -3,4 +3,4 @@ Flask==1.0.2
 scapy==2.4.2
 matplotlib
 pyx
-ipython==7.4.0
+ipython==7.16.3
